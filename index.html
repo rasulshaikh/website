@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RASUL — GTM Engineer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #060607;
+            --surface: #0e0e10;
+            --card: #151518;
+            --border: #232327;
+            --text: #f0f0f0;
+            --muted: #8a8a8e;
+            --subtle: #58585c;
+            --gold: #d4af37;
+            --blue: #3b82f6;
+            --purple: #8b5cf6;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* NAV */
+        .nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 48px;
+            background: rgba(6,6,7,0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-logo {
+            font-weight: 900;
+            font-size: 18px;
+            letter-spacing: 0.08em;
+            color: var(--gold);
+            text-decoration: none;
+        }
+        .nav-links {
+            display: flex;
+            gap: 28px;
+            align-items: center;
+        }
+        .nav-links a {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--text); }
+        .nav-cta {
+            padding: 8px 20px !important;
+            background: var(--gold) !important;
+            color: var(--bg) !important;
+            border-radius: 4px;
+            font-weight: 700 !important;
+            font-size: 12px !important;
+            letter-spacing: 0.04em;
+        }
+
+        /* HERO */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 160px 48px 100px;
+            overflow: hidden;
+        }
+        #three-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 10;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            border: 1px solid rgba(212,175,55,0.4);
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--gold);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 32px;
+        }
+        .badge::before {
+            content: '';
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 8px rgba(34,197,94,0.6);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .hero-title {
+            font-size: clamp(52px, 8vw, 100px);
+            font-weight: 900;
+            line-height: 0.95;
+            letter-spacing: -0.04em;
+            margin-bottom: 32px;
+            max-width: 520px;
+        }
+        .hero-title .accent {
+            background: linear-gradient(135deg, var(--gold), var(--purple), var(--blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-sub {
+            font-size: clamp(15px, 1.5vw, 18px);
+            line-height: 1.7;
+            color: var(--muted);
+            max-width: 600px;
+            margin-bottom: 8px;
+        }
+        .hero-tagline {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 40px;
+            font-style: italic;
+            margin-top: 16px;
+        }
+        .hero-btns {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 12px 28px;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+        }
+        .btn-primary { background: var(--gold); color: var(--bg); }
+        .btn-primary:hover { background: #e6c34a; transform: translateY(-1px); }
+        .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+        .btn-outline:hover { border-color: var(--text); transform: translateY(-1px); }
+        .btn-dark { background: var(--card); color: var(--muted); border: 1px solid var(--border); }
+        .btn-dark:hover { color: var(--text); border-color: var(--muted); }
+    </style>
+</head>
+<body>
+
+    <!-- NAV -->
+    <nav class="nav">
+        <a href="#" class="nav-logo">RASUL</a>
+        <div class="nav-links">
+            <a href="#proof">Proof</a>
+            <a href="#stack">Stack</a>
+            <a href="#cases">Cases</a>
+            <a href="#process">Process</a>
+            <a href="#game">Game</a>
+            <a href="mailto:shaikhrasul02@gmail.com" class="nav-cta">Contact</a>
+        </div>
+    </nav>
+
+    <!-- THREE.JS -->
+    <canvas id="three-canvas"></canvas>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="badge">Available &mdash; The Order Accepts Allies</div>
+            <h1 class="hero-title">AI <span class="accent">GTM</span><br>Engineer</h1>
+            <p class="hero-sub">Revenue-first GTM automations for B2B scale-ups. I cut CAC, speed up pipeline velocity, and lift SQL conversion by building systems that remove the manual work GTM teams should never touch.</p>
+            <div class="hero-tagline">I am the System.</div>
+            <div class="hero-btns">
+                <a href="#proof" class="btn btn-primary">See Results &rarr;</a>
+                <a href="#game" class="btn btn-outline">Play Game</a>
+                <a href="https://linkedin.com/in/rasulshaikh" target="_blank" class="btn btn-dark">LinkedIn</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- TRACK RECORD -->
+    <section id="proof" class="section">
+        <div class="container">
+            <span class="sl">Track Record</span>
+            <h2 class="st">3+ Years Building GTM Systems &mdash; $550K+ Revenue, $3.5M+ Pipeline</h2>
+            <div class="stats">
+                <div class="cd"><span class="cl">Revenue Generated</span><span class="cv">$550K+</span></div>
+                <div class="cd"><span class="cl">Pipeline Created</span><span class="cv">$3.5M+</span></div>
+                <div class="cd"><span class="cl">Efficiency Gains</span><span class="cv">40%</span></div>
+                <div class="cd"><span class="cl">Years Experience</span><span class="cv">3+</span></div>
+                <div class="cd"><span class="cl">Revenue Added</span><span class="cv">+$180K ARR</span><span class="cs">Under 6 months</span></div>
+                <div class="cd"><span class="cl">SQL Conversion</span><span class="cv">16% &rarr; 27%</span></div>
+                <div class="cd full"><span class="cl">Signal-driven Qualification</span><span class="cv">20% Tighter</span><span class="cs">Lead leak eliminated</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- THREE PILLARS -->
+    <section class="section">
+        <div class="container">
+            <span class="sl">Three Pillars</span>
+            <div class="pillars">
+                <div class="pill">
+                    <span class="pi" style="color:var(--gold);font-size:32px;">&#x1f441;</span>
+                    <h3>All-Seeing Intel</h3>
+                    <p>Intent signals, tech stack reveals, hiring triggers &mdash; the system sees what others miss.</p>
+                </div>
+                <div class="pill">
+                    <span class="pi" style="color:var(--blue);font-size:32px;">&#x1f3af;</span>
+                    <h3>Precision Strikes</h3>
+                    <p>Every message armed with enriched data and surgical targeting.</p>
+                </div>
+                <div class="pill">
+                    <span class="pi" style="color:var(--purple);font-size:32px;">&#x2699;</span>
+                    <h3>Compounding Engine</h3>
+                    <p>Every workflow gets stronger with more data. The system compounds, never decays.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CODEX -->
+    <section class="section codex-section">
+        <div class="container">
+            <span class="sl" style="color:var(--gold)">The Codex</span>
+            <h2 class="st">Systems That Build Campaigns.</h2>
+            <p class="codex-text">There's a difference between running outbound and having a machine that runs it. I don't write emails &mdash; I build the engine that writes, sends, tracks, learns, and self-optimizes. I don't clean your CRM &mdash; I build the loop that keeps it clean forever.</p>
+            <div style="margin-top:48px;">
+                <span class="sl" style="color:var(--subtle)">Core Philosophy</span>
+                <div class="code">
+                    <div class="ln"><span class="ln-num">01</span>right signals</div>
+                    <div class="ln"><span class="ln-num">02</span>at the exact moment</div>
+                    <div class="ln"><span class="ln-num">03</span>self-correct automatically</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ARCHITECTURE -->
+    <section id="stack" class="section">
+        <div class="container">
+            <span class="sl">Architecture</span>
+            <h2 class="st">How the System Runs</h2>
+            <p class="arch-intro">Clay is the brain. ICP and TAM mapping, account enrichment with firmographics, intent signals, technographic data. Scored on real buying likelihood before touching the CRM. n8n orchestrates timing. Everything is connected.</p>
+            <div class="arrows">
+                <div class="sw"><span class="tt">MODULE I</span><h3>Market Intelligence</h3><p>ICP and TAM mapping. Accounts enriched with firmographics, intent, tech data. Scored on buying signals before CRM sync.</p></div>
+                <div class="sw"><span class="tt">MODULE II</span><h3>Data Ops &amp; Hygiene</h3><p>CRM flows back for cleansing. Duplicates resolved, owners matched, missing fields refreshed. Auto-sync to HubSpot/Attio.</p></div>
+                <div class="sw"><span class="tt">MODULE III</span><h3>Inbound Automation</h3><p>Inbound leads enriched, scored, routed instantly via Slack or CRM. High-intent triggers personalized outreach.</p></div>
+                <div class="sw"><span class="tt">MODULE IV</span><h3>Orchestration Layer</h3><p>Clay handles enrichment, scoring, decisions. n8n manages cross-system timing. Clean signals, zero drift.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ARSENAL -->
+    <section class="section">
+        <div class="container">
+            <span class="sl">Arsenal</span>
+            <h2 class="st">What I Deliver</h2>
+            <div class="arsenal">
+                <div class="ai"><span class="bn">I</span><div><h3>Automated Research &amp; Prioritization</h3><p>Enrichment and scoring on autopilot. Reps focus on closing.</p></div></div>
+                <div class="ai"><span class="bn">II</span><div><h3>Stable Top-of-Funnel Flow</h3><p>Predictable forecasting. Pipeline volatility eliminated.</p></div></div>
+                <div class="ai"><span class="bn">III</span><div><h3>AI Revenue Workflows</h3><p>Signal-driven, outcome-obsessed. Real pipeline impact.</p></div></div>
+                <div class="ai"><span class="bn">IV</span><div><h3>Multi-Domain Outbound</h3><p>Scale without deliverability risk. Protect domains.</p></div></div>
+                <div class="ai"><span class="bn">V</span><div><h3>Clean Data Engines</h3><p>Reduce bounce risk. Protect sender reputation.</p></div></div>
+                <div class="ai"><span class="bn">VI</span><div><h3>Rapid Market Testing</h3><p>Validate new ICPs without pulling sales. Ship fast.</p></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CASE STUDIES -->
+    <section id="cases" class="section">
+        <div class="container">
+            <span class="sl">Case Studies</span>
+            <div class="case-grid">
+                <div class="case-card">
+                    <span class="case-label">B2B SaaS &mdash; Series A</span>
+                    <div class="case-stats">
+                        <div class="case-stat"><span class="cs-val">+$180K</span><span class="cs-unit">ARR</span></div>
+                        <div class="case-stat"><span class="cs-val">16&rarr;27%</span><span class="cs-unit">SQL</span></div>
+                        <div class="case-stat"><span class="cs-val">6mo</span><span class="cs-unit">Timeline</span></div>
+                    </div>
+                    <div class="case-meta">signal-driven AI GTM stack &mdash; SQL conversion jumped from 16% to 27%</div>
+                </div>
+                <div class="case-card">
+                    <span class="case-label">AI Infrastructure &mdash; Pre-Seed</span>
+                    <div class="case-stats">
+                        <div class="case-stat"><span class="cs-val">$370K</span><span class="cs-unit">Pipeline</span></div>
+                        <div class="case-stat"><span class="cs-val">40%</span><span class="cs-unit">Efficiency</span></div>
+                        <div class="case-stat"><span class="cs-val">3mo</span><span class="cs-unit">Timeline</span></div>
+                    </div>
+                    <div class="case-meta">Clay enrichment engine &mdash; Founders reclaimed 15+ hours/week</div>
+                </div>
+                <div class="case-card">
+                    <span class="case-label">FinTech &mdash; Seed to Series A</span>
+                    <div class="case-stats">
+                        <div class="case-stat"><span class="cs-val">-20%</span><span class="cs-unit">Leak</span></div>
+                        <div class="case-stat"><span class="cs-val">+15</span><span class="cs-unit">Meetings</span></div>
+                        <div class="case-stat"><span class="cs-val">98%</span><span class="cs-unit">Deliver</span></div>
+                    </div>
+                    <div class="case-meta">multi-domain infrastructure &mdash; 20% tighter qualification</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section class="section">
+        <div class="container">
+            <span class="sl">What They Say</span>
+            <div class="quotes">
+                <div class="qt">
+                    <blockquote>"Rasul doesn't just execute &mdash; he diagnoses. Found a bottleneck we'd missed for 6 months and fixed it in a week."</blockquote>
+                    <div class="qt-author"><span>SaaS Founder</span><span>Series A B2B</span></div>
+                </div>
+                <div class="qt">
+                    <blockquote>"Pipeline grew 3&times; in two quarters when we went from guessing ICP to data-driven confidence with his Clay system."</blockquote>
+                    <div class="qt-author"><span>AI Startup CEO</span><span>Pre-Seed Infrastructure</span></div>
+                </div>
+                <div class="qt">
+                    <blockquote>"Outbound went from 2% reply to 18% in three weeks. Same market, same product &mdash; just better signals."</blockquote>
+                    <div class="qt-author"><span>VP of Sales</span><span>FinTech</span></div>
+                </div>
+                <div class="qt full">
+                    <blockquote>"Everything measured, everything automated. The system doesn't reset &mdash; it compounds. Thinks like an engineer."</blockquote>
+                    <div class="qt-author"><span>GTM Lead</span><span>B2B Scale-up</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TECH STACK -->
+    <section class="section">
+        <div class="container">
+            <span class="sl" style="color:var(--gold)">Full Tech Stack</span>
+            <h2 class="st">Tools I Work With.</h2>
+            <div class="stack-grid">
+                <div class="sc"><span class="sc-name">Clay</span><span class="sc-desc">Waterfall enrichment, scoring, ICP modeling</span><span class="sc-tag">Intel Core</span></div>
+                <div class="sc"><span class="sc-name">n8n</span><span class="sc-desc">API routing, multi-system orchestration</span><span class="sc-tag">Automation</span></div>
+                <div class="sc"><span class="sc-name">HubSpot</span><span class="sc-desc">Pipeline, forecasting, attribution, workflows</span><span class="sc-tag">CRM</span></div>
+                <div class="sc"><span class="sc-name">Smartlead</span><span class="sc-desc">Cold email at scale. Warm-up, inbox rotation</span><span class="sc-tag">Outbound</span></div>
+                <div class="sc"><span class="sc-name">Instantly</span><span class="sc-desc">AI personalization, B2B database, A/B testing</span><span class="sc-tag">Outbound</span></div>
+                <div class="sc"><span class="sc-name">Attio</span><span class="sc-desc">Flexible pipeline CRM, modular data models</span><span class="sc-tag">CRM</span></div>
+                <div class="sc"><span class="sc-name">Slack</span><span class="sc-desc">Real-time signal routing, high-intent alerts</span><span class="sc-tag">Signals</span></div>
+                <div class="sc"><span class="sc-name">Google Sheets</span><span class="sc-desc">Data staging, prospect lists, Clay I/O</span><span class="sc-tag">Data</span></div>
+                <div class="sc"><span class="sc-name">Make.com</span><span class="sc-desc">Visual workflows, data transformation</span><span class="sc-tag">Automation</span></div>
+                <div class="sc"><span class="sc-name">Apollo</span><span class="sc-desc">Verified contacts, intent signals, sequencing</span><span class="sc-tag">Intel</span></div>
+                <div class="sc"><span class="sc-name">Phantombuster</span><span class="sc-desc">LinkedIn automation, data extraction</span><span class="sc-tag">Intel</span></div>
+                <div class="sc"><span class="sc-name">Claude / LLMs</span><span class="sc-desc">AI copy, intent analysis, scoring</span><span class="sc-tag">AI Engine</span></div>
+                <div class="sc"><span class="sc-name">Claude Code</span><span class="sc-desc">Custom webhooks, API connectors, scripts</span><span class="sc-tag">Engineering</span></div>
+                <div class="sc"><span class="sc-name">Antigravity</span><span class="sc-desc">Market shifts, competitor moves detection</span><span class="sc-tag">Intel</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ADVANCED OPS -->
+    <section class="section">
+        <div class="container">
+            <span class="sl" style="color:var(--gold)">Advanced Ops</span>
+            <h2 class="st">What an Elite GTM Engineer Does</h2>
+            <div class="ops-grid">
+                <div class="op-card"><span class="op-num">I</span><h3>Revenue Architecture</h3><p>Design the full GTM data flow &mdash; first touch to closed-won.</p></div>
+                <div class="op-card"><span class="op-num">II</span><h3>ICP Self-Modeling</h3><p>Self-improving ICP models from intent, tech, firmographics.</p></div>
+                <div class="op-card"><span class="op-num">III</span><h3>Deliverability Eng</h3><p>SPF/DKIM/DMARC, warm-up, inbox rotation, bounce mgmt.</p></div>
+                <div class="op-card"><span class="op-num">IV</span><h3>Signal-Driven Routing</h3><p>AE gets Slack alert in 60s when target visits pricing page.</p></div>
+                <div class="op-card"><span class="op-num">V</span><h3>Revenue Attribution</h3><p>Dashboards showing exactly which campaigns produce pipeline.</p></div>
+                <div class="op-card"><span class="op-num">VI</span><h3>Competitive Intel</h3><p>Monitor competitor moves, pricing, hiring signals.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TIMELINE -->
+    <section id="process" class="section">
+        <div class="container">
+            <span class="sl" style="color:var(--blue)">Timeline</span>
+            <h2 class="st">Zero to Revenue in 30 Days</h2>
+            <div class="timeline">
+                <div class="tl">
+                    <span class="wk">WEEK 1</span>
+                    <h4 class="tl-title">Discovery &amp; Architecture</h4>
+                    <p class="tl-desc">Stack audit, ICP modeling, TAM mapping. Blueprint everything.</p>
+                    <div class="tl-items">
+                        <span class="ti">ICP Model</span><span class="ti">TAM Map</span><span class="ti">Audit</span><span class="ti">Blueprint</span>
+                    </div>
+                </div>
+                <div class="tl">
+                    <span class="wk">WEEK 2</span>
+                    <h4 class="tl-title">Build &amp; Integration</h4>
+                    <p class="tl-desc">Clay tables, scoring, routing. n8n connecting everything. Testing.</p>
+                    <div class="tl-items">
+                        <span class="ti">Clay</span><span class="ti">n8n Flows</span><span class="ti">CRM Sync</span><span class="ti">Alerts</span>
+                    </div>
+                </div>
+                <div class="tl">
+                    <span class="wk">WEEK 3</span>
+                    <h4 class="tl-title">Campaign Deploy</h4>
+                    <p class="tl-desc">Outbound live. Inbound routing. Signals hit Slack. Meetings book.</p>
+                    <div class="tl-items">
+                        <span class="ti">Outbound</span><span class="ti">Routing</span><span class="ti">Signals</span><span class="ti">Dashboard</span>
+                    </div>
+                </div>
+                <div class="tl">
+                    <span class="wk">WEEK 4+</span>
+                    <h4 class="tl-title">Optimize &amp; Scale</h4>
+                    <p class="tl-desc">ICP tightened. Sequences refined. Scale wins. Machine compounds.</p>
+                    <div class="tl-items">
+                        <span class="ti">Reports</span><span class="ti">ICP Tuning</span><span class="ti">Playbook</span><span class="ti">Scale</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CLOSING -->
+    <section class="section closing-section">
+        <div class="container center">
+            <span class="sl">Not a weekly reset. A compounding machine that gets stronger with every signal, every contact, every conversion.</span>
+        </div>
+    </section>
+
+    <!-- GAME -->
+    <section id="game" class="section">
+        <div class="container">
+            <span class="sl" style="color:var(--gold)">Proving Grounds</span>
+            <h2 class="st">Destroy GTM Anomalies</h2>
+            <p class="game-desc">You're the ship. Every enemy is a threat to your pipeline. Destroy them all.</p>
+            <div class="game-wrapper">
+                <canvas id="gameCanvas"></canvas>
+                <div class="game-overlay" id="gameOverlay">
+                    <span class="go-text">Press SPACE to Start</span>
+                </div>
+                <div class="game-ui">
+                    <span class="gui">SCORE: <b id="gScore">0</b></span>
+                    <span class="gui">LIVES: <b id="gLives">◆◆◆</b></span>
+                    <span class="gui">WAVE: <b id="gWave">1</b></span>
+                    <span class="gui">BEST: <b id="gBest">0</b></span>
+                </div>
+                <div class="game-controls">
+                    <span class="gk">&#x2190; &#x2192;</span> or <span class="gk">A D</span> Move &nbsp;&middot;&nbsp; <span class="gk">Space</span> Fire &nbsp;&middot;&nbsp; <span class="gk">P</span> Pause &nbsp;&middot;&nbsp; <span class="gk">R</span> Restart
+                </div>
+            </div>
+            <div class="game-quote">
+                "I don't need luck. <span style="color:var(--gold);">I have systems.</span>" &mdash; Rasul
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section" id="faq">
+        <div class="container">
+            <span class="sl">Questions</span>
+            <div class="faq-list">
+                <details class="fd">
+                    <summary>What companies do you work with?</summary>
+                    <p>B2B scale-ups, Series A+. Pre-revenue can still benefit with lighter but powerful systems.</p>
+                </details>
+                <details class="fd">
+                    <summary>Do I provide the tools?</summary>
+                    <p>Yes &mdash; Clay, HubSpot etc. I build inside your infra. You own everything. No lock-in.</p>
+                </details>
+                <details class="fd">
+                    <summary>Timeline to first revenue?</summary>
+                    <p>First signals in Week 3. Full system at 30 days.</p>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <span>&copy; 2026 Rasul Shaikh</span>
+        <div class="footer-links">
+            <a href="https://linkedin.com/in/rasulshaikh" target="_blank">LinkedIn</a>
+            <a href="mailto:shaikhrasul02@gmail.com">shaikhrasul02@gmail.com</a>
+        </div>
+    </footer>
+
+
+    <style>
+        .section { padding: 100px 48px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .center { text-align: center; }
+        .sl {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--blue);
+            margin-bottom: 12px;
+        }
+        .st {
+            font-size: clamp(28px, 4vw, 48px);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+            margin-bottom: 48px;
+        }
+
+        /* STATS */
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
+        .cd { background: var(--card); border: 1px solid var(--border); padding: 28px 24px; display: flex; flex-direction: column; }
+        .cd.full { grid-column: 1 / -1; }
+        .cl { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--subtle); margin-bottom: 8px; }
+        .cv { font-size: 28px; font-weight: 900; letter-spacing: -0.03em; color: var(--gold); }
+        .cs { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+        /* PILLARS */
+        .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+        .pill { background: var(--card); border: 1px solid var(--border); padding: 40px 32px; transition: border-color 0.3s; }
+        .pill:hover { border-color: var(--gold); }
+        .pill h3 { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+        .pill p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+        /* CODEX */
+        .codex-section .codex-text {
+            font-size: 18px; line-height: 1.7; color: var(--muted);
+            max-width: 700px; margin-bottom: 16px;
+        }
+        .code { display: flex; flex-direction: column; gap: 1px; max-width: 520px; }
+        .ln {
+            padding: 16px 32px;
+            background: var(--card);
+            border-left: 2px solid var(--gold);
+            font-size: 16px; font-weight: 500; line-height: 1.5;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            display: flex; align-items: center; gap: 16px;
+        }
+        .ln-num {
+            font-size: 11px; font-weight: 700; color: var(--gold);
+            min-width: 24px; letter-spacing: 0;
+        }
+
+        /* ARCHITECTURE */
+        .arch-intro {
+            font-size: 16px; color: var(--muted); line-height: 1.7;
+            max-width: 700px; margin-bottom: 48px;
+        }
+        .arrows { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .sw { background: var(--card); border: 1px solid var(--border); padding: 36px 32px; transition: border-color 0.3s; }
+        .sw:hover { border-color: var(--gold); }
+        .tt { font-size: 10px; font-weight: 700; letter-spacing: 0.15em; color: var(--gold); display: block; margin-bottom: 12px; }
+        .sw h3 { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+        .sw p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+        /* ARSENAL */
+        .arsenal { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .ai {
+            background: var(--card); border: 1px solid var(--border);
+            padding: 36px 32px; display: flex; gap: 20px; align-items: flex-start;
+            transition: border-color 0.3s;
+        }
+        .ai:hover { border-color: var(--gold); }
+        .bn {
+            font-size: 14px; font-weight: 800; color: var(--gold);
+            border: 1px solid var(--gold);
+            width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 4px; flex-shrink: 0;
+        }
+        .ai h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+        .ai p { font-size: 14px; color: var(--muted); line-height: 1.5; }
+
+        /* CASE STUDIES */
+        .case-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .case-card {
+            background: var(--card); border: 1px solid var(--border); padding: 36px 28px;
+            transition: border-color 0.3s;
+        }
+        .case-card:hover { border-color: var(--gold); }
+        .case-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: var(--subtle); text-transform: uppercase; }
+        .case-stats { display: flex; gap: 24px; margin: 20px 0; }
+        .case-stat { display: flex; flex-direction: column; }
+        .cs-val { font-size: 24px; font-weight: 900; color: var(--gold); }
+        .cs-unit { font-size: 10px; font-weight: 600; color: var(--subtle); text-transform: uppercase; letter-spacing: 0.08em; }
+        .case-meta { font-size: 13px; color: var(--muted); line-height: 1.5; font-style: italic; }
+
+        /* TESTIMONIALS */
+        .quotes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .qt { background: var(--card); border: 1px solid var(--border); padding: 36px 32px; }
+        .qt.full { grid-column: 1 / -1; }
+        .qt blockquote { font-size: 15px; font-style: italic; line-height: 1.7; color: var(--muted); margin-bottom: 16px; }
+        .qt-author { display: flex; flex-direction: column; gap: 2px; }
+        .qt-author span:first-child { font-size: 12px; font-weight: 700; color: var(--text); }
+        .qt-author span:last-child { font-size: 11px; color: var(--subtle); }
+
+        /* TECH STACK */
+        .stack-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .sc { background: var(--card); border: 1px solid var(--border); padding: 24px; transition: border-color 0.3s; display: flex; flex-direction: column; gap: 8px; }
+        .sc:hover { border-color: var(--gold); }
+        .sc-name { font-size: 16px; font-weight: 700; }
+        .sc-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+        .sc-tag { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; color: var(--gold); text-transform: uppercase; }
+
+        /* ADVANCED OPS */
+        .ops-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .op-card { background: var(--card); border: 1px solid var(--border); padding: 32px 28px; transition: border-color 0.3s; }
+        .op-card:hover { border-color: var(--gold); }
+        .op-num { font-size: 14px; font-weight: 800; color: var(--gold); }
+        .op-card h3 { font-size: 16px; font-weight: 700; margin: 8px 0 8px; }
+        .op-card p { font-size: 14px; color: var(--muted); line-height: 1.5; }
+
+        /* TIMELINE */
+        .timeline { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
+        .tl { background: var(--card); border: 1px solid var(--border); padding: 32px 24px; display: flex; flex-direction: column; }
+        .wk {
+            font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: var(--gold);
+            display: block; margin-bottom: 8px;
+        }
+        .tl-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+        .tl-desc { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 16px; }
+        .tl-items { display: flex; flex-direction: column; gap: 6px; }
+        .ti { font-size: 12px; color: var(--subtle); }
+
+        /* CLOSING */
+        .closing-section { padding: 140px 48px; }
+
+        /* GAME */
+        .game-desc { font-size: 16px; color: var(--muted); margin-bottom: 32px; }
+        .game-wrapper { position: relative; max-width: 800px; margin: 0 auto 20px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+        #gameCanvas { width: 100%; height: 500px; display: block; background: #000; }
+        .game-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+        .go-text { font-size: 14px; font-weight: 700; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; }
+        .game-ui { display: flex; justify-content: space-between; padding: 12px 0; }
+        .gui { font-size: 12px; font-weight: 600; color: var(--muted); }
+        .gui b { color: var(--gold); font-weight: 800; }
+        .game-controls { text-align: center; font-size: 12px; color: var(--subtle); padding: 8px 0; }
+        .gk { display: inline-block; background: var(--card); border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px; font-size: 11px; color: var(--text); }
+        .game-quote { text-align: center; margin-top: 32px; font-style: italic; font-size: 16px; color: var(--muted); }
+
+        /* FAQ */
+        .faq-list { display: flex; flex-direction: column; max-width: 700px; margin: 0 auto; }
+        .fd { border-bottom: 1px solid var(--border); }
+        .fd:first-child { border-top: 1px solid var(--border); }
+        .fd summary {
+            padding: 20px 0;
+            font-size: 15px; font-weight: 600; cursor: pointer; list-style: none;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .fd summary::-webkit-details-marker { display: none; }
+        .fd summary::after { content: '+'; color: var(--gold); font-size: 20px; font-weight: 400; }
+        .fd[open] summary::after { content: '-'; }
+        .fd p { padding: 0 0 20px 0; font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+        /* FOOTER */
+        footer {
+            padding: 32px 48px;
+            border-top: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            max-width: 1200px; margin: 0 auto;
+            font-size: 12px; color: var(--subtle);
+        }
+        .footer-links { display: flex; gap: 16px; }
+        .footer-links a { color: var(--muted); text-decoration: none; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--text); }
+
+        /* RESPONSIVE */
+        @media (max-width: 1100px) {
+            .stack-grid { grid-template-columns: repeat(3, 1fr); }
+            .case-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 900px) {
+            .pillars { grid-template-columns: 1fr; }
+            .arrows { grid-template-columns: 1fr; }
+            .arsenal { grid-template-columns: 1fr; }
+            .ops-grid { grid-template-columns: repeat(2, 1fr); }
+            .timeline { grid-template-columns: repeat(2, 1fr); }
+            .quotes { grid-template-columns: 1fr; }
+            .qt.full { grid-column: auto; }
+            .stats { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) {
+            .section { padding: 80px 24px; }
+            .hero { padding: 120px 24px 80px; }
+            .stack-grid { grid-template-columns: 1fr 1fr; }
+            .case-grid { grid-template-columns: 1fr; }
+            .ops-grid { grid-template-columns: 1fr; }
+            .timeline { grid-template-columns: 1fr; }
+            .nav { padding: 16px 24px; }
+            .nav-links a:not(.nav-cta) { display: none; }
+            footer { flex-direction: column; gap: 12px; text-align: center; }
+            #gameCanvas { height: 400px; }
+        }
+    </style>
+
+    <!-- THREE.JS HERO -->
+    <script>
+    (function(){
+        const canvas = document.getElementById('three-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setClearColor(0x060607, 1);
+
+        let mouseX=0, mouseY=0;
+        document.addEventListener('mousemove', e => {
+            mouseX = (e.clientX/window.innerWidth)*2 - 1;
+            mouseY = -(e.clientY/window.innerHeight)*2 + 1;
+        });
+
+        // Central wireframe spheres
+        const s1 = new THREE.Mesh(new THREE.IcosahedronGeometry(1.5,2), new THREE.MeshBasicMaterial({color:0xd4af37,wireframe:true,transparent:true,opacity:0.15}));
+        scene.add(s1);
+        const s2 = new THREE.Mesh(new THREE.IcosahedronGeometry(1.0,1), new THREE.MeshBasicMaterial({color:0x3b82f6,wireframe:true,transparent:true,opacity:0.1}));
+        scene.add(s2);
+
+        // Particles
+        const N = 2000;
+        const pos = new Float32Array(N*3);
+        const cols = new Float32Array(N*3);
+        const vels = [];
+        const pal = [new THREE.Color(0xd4af37), new THREE.Color(0x3b82f6), new THREE.Color(0x8b5cf6)];
+
+        for(let i=0;i<N;i++){
+            const i3=i*3;
+            const t=Math.random()*Math.PI*2, p=Math.acos(2*Math.random()-1), r=2+Math.random()*8;
+            pos[i3]=r*Math.sin(p)*Math.cos(t); pos[i3+1]=r*Math.sin(p)*Math.sin(t); pos[i3+2]=r*Math.cos(p);
+            const c=pal[Math.floor(Math.random()*3)];
+            cols[i3]=c.r; cols[i3+1]=c.g; cols[i3+2]=c.b;
+            vels.push({t,p,r, s:(Math.random()-0.5)*0.008, dr:(Math.random()-0.5)*0.002});
+        }
+
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+        geo.setAttribute('color', new THREE.BufferAttribute(cols,3));
+        const pts = new THREE.Points(geo, new THREE.PointsMaterial({size:0.02,vertexColors:true,transparent:true,opacity:0.8,blending:THREE.AdditiveBlending,depthWrite:false}));
+        scene.add(pts);
+
+        // Connection lines
+        const LN=500, lp=new Float32Array(LN*6), lc=new Float32Array(LN*6);
+        const lgeo = new THREE.BufferGeometry();
+        lgeo.setAttribute('position', new THREE.BufferAttribute(lp,3));
+        lgeo.setAttribute('color', new THREE.BufferAttribute(lc,3));
+        const lmat = new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:0.15,blending:THREE.AdditiveBlending});
+        const lseg = new THREE.LineSegments(lgeo, lmat);
+        scene.add(lseg);
+
+        // Rings
+        const r1 = new THREE.Mesh(new THREE.TorusGeometry(3,0.005,8,100), new THREE.MeshBasicMaterial({color:0xd4af37,transparent:true,opacity:0.3}));
+        r1.rotation.x=Math.PI/3; scene.add(r1);
+        const r2 = new THREE.Mesh(new THREE.TorusGeometry(4,0.004,8,120), new THREE.MeshBasicMaterial({color:0x3b82f6,transparent:true,opacity:0.2}));
+        r2.rotation.x=Math.PI/2.5; r2.rotation.z=Math.PI/6; scene.add(r2);
+
+        camera.position.z = 6;
+
+        const clock = new THREE.Clock();
+
+        function animate(){
+            requestAnimationFrame(animate);
+            const t = clock.getElapsedTime();
+
+            // Update particles
+            const pp = geo.attributes.position.array;
+            for(let i=0;i<N;i++){
+                const v=vels[i]; v.t+=v.s; v.p+=v.dr;
+                const i3=i*3;
+                pp[i3]=v.r*Math.sin(v.p)*Math.cos(v.t);
+                pp[i3+1]=v.r*Math.sin(v.p)*Math.sin(v.t);
+                pp[i3+2]=v.r*Math.cos(v.p);
+            }
+            geo.attributes.position.needsUpdate=true;
+
+            // Update lines
+            const lpp=lgeo.attributes.position.array;
+            const lcc=lgeo.attributes.color.array;
+            let li=0;
+            const sm=200;
+            for(let a=0;a<sm&&li<LN;a++){
+                const a3=a*3;
+                for(let b=a+1;b<sm&&li<LN;b++){
+                    const b3=b*3;
+                    const dx=pp[a3]-pp[b3],dy=pp[a3+1]-pp[b3+1],dz=pp[a3+2]-pp[b3+2];
+                    const d=Math.sqrt(dx*dx+dy*dy+dz*dz);
+                    if(d<2){
+                        const i6=li*6;
+                        lpp[i6]=pp[a3];lpp[i6+1]=pp[a3+1];lpp[i6+2]=pp[a3+2];
+                        lpp[i6+3]=pp[b3];lpp[i6+4]=pp[b3+1];lpp[i6+5]=pp[b3+2];
+                        const o=1-d/2;
+                        lcc[i6]=cols[a3]*o;lcc[i6+1]=cols[a3+1]*o;lcc[i6+2]=cols[a3+2]*o;
+                        lcc[i6+3]=cols[b3]*o;lcc[i6+4]=cols[b3+1]*o;lcc[i6+5]=cols[b3+2]*o;
+                        li++;
+                    }
+                }
+            }
+            for(let i=li;i<LN;i++){for(let j=0;j<6;j++){lpp[i*6+j]=999;}}
+            lgeo.attributes.position.needsUpdate=true;
+            lgeo.attributes.color.needsUpdate=true;
+
+            // Rotate
+            s1.rotation.y=t*0.1; s1.rotation.x=Math.sin(t*0.05)*0.3;
+            s2.rotation.y=-t*0.15; s2.rotation.z=t*0.08;
+            pts.rotation.y=t*0.03;
+            r1.rotation.z=t*0.05;
+            r2.rotation.z=-t*0.03;
+
+            // Parallax
+            camera.position.x+=(mouseX*0.5-camera.position.x)*0.02;
+            camera.position.y+=(mouseY*0.3-camera.position.y)*0.02;
+            camera.lookAt(0,0,0);
+
+            renderer.render(scene,camera);
+        }
+        animate();
+
+        window.addEventListener('resize',()=>{
+            camera.aspect=window.innerWidth/window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth,window.innerHeight);
+        });
+    })();
+    </script>
+
+    <!-- GAME -->
+    <script>
+    (function(){
+        var cv=document.getElementById('gameCanvas');
+        var ctx=cv.getContext('2d');
+        var overlay=document.getElementById('gameOverlay');
+        var scoreEl=document.getElementById('gScore');
+        var livesEl=document.getElementById('gLives');
+        var waveEl=document.getElementById('gWave');
+        var bestEl=document.getElementById('gBest');
+
+        var best=parseInt(localStorage.getItem('gtm_best')||'0');
+        bestEl.textContent=best;
+
+        var types=[
+            {n:'LEAD LEAK',c:'#ef4444',s:18,p:10},
+            {n:'BAD DATA',c:'#f97316',s:16,p:15},
+            {n:'COLD SEND',c:'#eab308',s:20,p:20},
+            {n:'DUPLICATE',c:'#a855f7',s:17,p:25},
+            {n:'BOUNCE',c:'#ec4899',s:19,p:30},
+            {n:'LOW REPLY',c:'#22c55e',s:16,p:20}
+        ];
+
+        var ship,bullets,enemies,particles,stars,score,lives,wave,state;
+        var keys={};var lastShot=0;var eTimer=0;
+
+        function resize(){
+            cv.width=cv.offsetWidth*2;cv.height=cv.offsetHeight*2;
+        }
+
+        function init(){
+            resize();
+            var w=cv.offsetWidth, h=cv.offsetHeight;
+            ship={x:w/2,y:h-40,w:28,h:24,spd:6};
+            bullets=[];enemies=[];particles=[];stars=[];
+            score=0;lives=3;wave=1;state='idle';
+            overlay.style.display='flex';
+            overlay.querySelector('.go-text').textContent='Press SPACE to Start';
+            for(var i=0;i<80;i++){
+                stars.push({x:Math.random()*w,y:Math.random()*h,s:Math.random()*1.5+0.5,b:Math.random()});
+            }
+            ui();
+        }
+
+        function ui(){
+            scoreEl.textContent=score;
+            livesEl.textContent=''.padEnd(lives,'◆')+''.padEnd(3-lives,'◇');
+            // Simpler approach
+            var s='';for(var i=0;i<lives;i++)s+='\u25c6';
+            for(var i=lives;i<3;i++)s+='\u25c7';
+            livesEl.textContent=s;
+            waveEl.textContent=wave;
+            if(score>best){best=score;localStorage.setItem('gtm_best',best);}
+            bestEl.textContent=best;
+        }
+
+        function spawn(){
+            var w=cv.offsetWidth,h=cv.offsetHeight;
+            var max=Math.min(wave,types.length);
+            var t=types[Math.floor(Math.random()*max)];
+            var c=Math.floor(1+wave*0.5);
+            for(var i=0;i<c;i++){
+                enemies.push({
+                    x:Math.random()*(w-120)+60,
+                    y:-20-Math.random()*40,
+                    spd:0.8+Math.random()*1.2+wave*0.1,
+                    w:Math.random()*Math.PI*2,
+                    n:t.n,c:t.c,s:t.s,p:t.p
+                });
+            }
+        }
+
+        function addP(x,y,c){
+            for(var i=0;i<8;i++){
+                particles.push({x:x,y:y,vx:(Math.random()-0.5)*4,vy:(Math.random()-0.5)*4,life:1,c:c});
+            }
+        }
+
+        function drawShip(){
+            var s=ship;
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(s.x,s.y-s.h/2);
+            ctx.lineTo(s.x-s.w/2,s.y+s.h/2);
+            ctx.lineTo(s.x,s.y+s.h/4);
+            ctx.lineTo(s.x+s.w/2,s.y+s.h/2);
+            ctx.closePath();
+            ctx.fillStyle='#d4af37';
+            ctx.fill();
+            ctx.shadowColor='#d4af37';
+            ctx.shadowBlur=15;
+            ctx.strokeStyle='rgba(212,175,55,0.5)';
+            ctx.lineWidth=1;
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function drawBull(){
+            ctx.save();ctx.fillStyle='#3b82f6';ctx.shadowColor='#3b82f6';ctx.shadowBlur=8;
+            for(var i=0;i<bullets.length;i++){
+                ctx.fillRect(bullets[i].x-1.5,bullets[i].y,3,12);
+            }
+            ctx.restore();
+        }
+
+        function drawEn(){
+            ctx.save();
+            for(var i=0;i<enemies.length;i++){
+                var e=enemies[i];
+                ctx.beginPath();ctx.arc(e.x,e.y,e.s/2,0,Math.PI*2);
+                ctx.fillStyle=e.c+'22';ctx.fill();
+                ctx.strokeStyle=e.c;ctx.lineWidth=1.5;
+                ctx.shadowColor=e.c;ctx.shadowBlur=10;ctx.stroke();
+                ctx.shadowBlur=0;
+                ctx.fillStyle=e.c;ctx.font='7px Inter,sans-serif';ctx.textAlign='center';
+                ctx.fillText(e.n,e.x,e.y+3);
+            }
+            ctx.restore();
+        }
+
+        function drawPart(){
+            for(var i=0;i<particles.length;i++){
+                var p=particles[i];
+                ctx.save();ctx.globalAlpha=p.life;ctx.fillStyle=p.c;
+                ctx.fillRect(p.x-2,p.y-2,4,4);ctx.restore();
+            }
+        }
+
+        function drawStars(){
+            var t=Date.now()*0.001;
+            for(var i=0;i<stars.length;i++){
+                var s=stars[i];
+                var b=(Math.sin(t*2+s.b*10)+1)/2;
+                ctx.fillStyle='rgba(255,255,255,'+(0.3+b*0.5)+')';
+                ctx.fillRect(s.x,s.y,s.s,s.s);
+            }
+        }
+
+        function update(dt){
+            var w=cv.offsetWidth,h=cv.offsetHeight;
+            if(state!=='running')return;
+
+            if(keys['ArrowLeft']||keys['KeyA'])ship.x-=ship.spd;
+            if(keys['ArrowRight']||keys['KeyD'])ship.x+=ship.spd;
+            ship.x=Math.max(ship.w/2,Math.min(w-ship.w/2,ship.x));
+
+            if(keys['Space']&&Date.now()-lastShot>180){
+                bullets.push({x:ship.x,y:ship.y-ship.h/2});
+                lastShot=Date.now();
+            }
+
+            for(var i=bullets.length-1;i>=0;i--){
+                bullets[i].y-=8;
+                if(bullets[i].y<-20)bullets.splice(i,1);
+            }
+
+            eTimer+=dt;
+            var sr=Math.max(400,1500-wave*150);
+            if(eTimer>sr){spawn();eTimer=0;}
+
+            for(var i=enemies.length-1;i>=0;i--){
+                var e=enemies[i];
+                e.y+=e.spd;e.w+=0.02;e.x+=Math.sin(e.w)*0.5;
+                if(e.y>h-50){
+                    lives--;addP(e.x,e.y,'#ef4444');ui();
+                    enemies.splice(i,1);
+                    if(lives<=0){
+                        state='gameover';
+                        overlay.style.display='flex';
+                        overlay.querySelector('.go-text').textContent='GAME OVER  |  SPACE to Restart';
+                    }
+                    continue;
+                }
+                for(var j=bullets.length-1;j>=0;j--){
+                    var b=bullets[j];
+                    if(Math.abs(b.x-e.x)<e.s/2+3&&Math.abs(b.y-e.y)<e.s/2+6){
+                        score+=e.p;addP(e.x,e.y,e.c);
+                        bullets.splice(j,1);enemies.splice(i,1);
+                        ui();
+                        if(score>wave*100){wave++;ui();}
+                        break;
+                    }
+                }
+            }
+
+            for(var i=particles.length-1;i>=0;i--){
+                var p=particles[i];
+                p.x+=p.vx;p.y+=p.vy;p.life-=0.03;
+                if(p.life<=0)particles.splice(i,1);
+            }
+        }
+
+        function render(){
+            var w=cv.offsetWidth,h=cv.offsetHeight;
+            ctx.save();ctx.scale(2,2);
+            ctx.clearRect(0,0,w,h);
+            ctx.fillStyle='#060607';ctx.fillRect(0,0,w,h);
+            drawStars();
+            drawPart();drawBull();drawEn();
+            if(state!=='gameover')drawShip();
+            if(state==='paused'){
+                ctx.fillStyle='rgba(6,6,7,0.7)';ctx.fillRect(0,0,w,h);
+                ctx.fillStyle='#d4af37';ctx.font='bold 24px Inter,sans-serif';ctx.textAlign='center';
+                ctx.fillText('PAUSED',w/2,h/2);
+                ctx.fillStyle='#8a8a8e';ctx.font='14px Inter,sans-serif';
+                ctx.fillText('Press P to resume',w/2,h/2+30);
+            }
+            ctx.restore();
+        }
+
+        var lt=0;
+        function loop(t){var dt=t-lt;lt=t;update(dt);render();requestAnimationFrame(loop);}
+
+        document.addEventListener('keydown',function(e){
+            keys[e.code]=true;
+            if(e.code==='Space'){
+                e.preventDefault();
+                if(state==='idle'){state='running';overlay.style.display='none';}
+                if(state==='gameover'){init();state='running';overlay.style.display='none';}
+            }
+            if(e.code==='KeyP'&&(state==='running'||state==='paused')){
+                state=state==='paused'?'running':'paused';
+                if(state==='running')overlay.style.display='none';
+            }
+            if(e.code==='KeyR'&&state!=='idle')init();
+        });
+        document.addEventListener('keyup',function(e){keys[e.code]=false;});
+
+        cv.addEventListener('click',function(){
+            if(state==='idle'){state='running';overlay.style.display='none';}
+            if(state==='gameover'){init();state='running';overlay.style.display='none';}
+        });
+
+        init();requestAnimationFrame(loop);
+    })();
+    </script>
+
+</body>
+</html>
