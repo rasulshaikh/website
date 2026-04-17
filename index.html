@@ -455,7 +455,7 @@
         /* STATS */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 24px;
             margin-top: 80px;
         }
@@ -467,6 +467,9 @@
             position: relative;
             overflow: hidden;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
         }
 
         .stat-card::before {
@@ -508,11 +511,13 @@
             text-shadow: 0 0 30px var(--red-glow);
             line-height: 1;
             margin-bottom: 8px;
+            white-space: nowrap;
         }
 
         .stat-sub {
             font-size: 13px;
             color: var(--text-dim);
+            white-space: nowrap;
         }
 
         /* PILLARS */
@@ -1019,6 +1024,7 @@
 
         .case-card {
             flex: 0 0 380px;
+            min-width: 0;
             background: var(--card);
             border: 1px solid var(--border);
             padding: 40px 36px;
@@ -1071,6 +1077,7 @@
             font-weight: 800;
             color: var(--red);
             text-shadow: 0 0 20px var(--red-glow);
+            white-space: nowrap;
         }
 
         .case-unit {
@@ -1079,6 +1086,7 @@
             color: var(--muted);
             text-transform: uppercase;
             letter-spacing: 0.1em;
+            white-space: nowrap;
         }
 
         .case-meta {
