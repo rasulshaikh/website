@@ -1,0 +1,9 @@
+{
+  "name": "website-repo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "echo 'Static site' && exit 0",
+    "vercel-build": "echo 'Static site' && exit 0"
+  }
+}
