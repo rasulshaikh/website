@@ -882,9 +882,117 @@
             line-height: 1.6;
         }
 
+        /* MARQUEE SLIDER */
+        .marquee-section {
+            overflow: hidden;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 0;
+            background: var(--card);
+        }
+
+        .marquee-track {
+            display: flex;
+            gap: 0;
+            animation: marquee-scroll 20s linear infinite;
+            width: max-content;
+        }
+
+        .marquee-track.paused {
+            animation-play-state: paused;
+        }
+
+        @keyframes marquee-scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .marquee-item {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            padding: 24px 48px;
+            white-space: nowrap;
+            font-family: 'Syne', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .marquee-item::after {
+            content: '◆';
+            font-size: 10px;
+            color: var(--red);
+            margin-left: 32px;
+        }
+
+        .marquee-item:hover {
+            color: var(--red);
+            text-shadow: 0 0 20px var(--red-glow);
+        }
+
+        .marquee-expanded {
+            display: none;
+            background: var(--bg-2);
+            border-top: 1px solid var(--red);
+            padding: 48px 64px;
+        }
+
+        .marquee-expanded.active {
+            display: block;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .marquee-expanded-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--red);
+            margin-bottom: 16px;
+            text-shadow: 0 0 30px var(--red-glow);
+        }
+
+        .marquee-expanded-desc {
+            font-size: 16px;
+            color: var(--text-dim);
+            line-height: 1.8;
+            max-width: 700px;
+        }
+
         /* CASE STUDIES - Horizontal Scroll */
         .cases-section {
             overflow: visible;
+            padding-bottom: 40px;
+        }
+
+        .cases-scroll-wrapper {
+            position: relative;
+            padding: 0 64px;
+            overflow: hidden;
+        }
+
+        .cases-scroll-wrapper::before,
+        .cases-scroll-wrapper::after {
+            content: '';
+            position: absolute;
+            top: 80px;
+            bottom: 24px;
+            width: 80px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .cases-scroll-wrapper::before {
+            left: 64px;
+            background: linear-gradient(90deg, var(--bg) 0%, transparent 100%);
+        }
+
+        .cases-scroll-wrapper::after {
+            right: 64px;
+            background: linear-gradient(270deg, var(--bg) 0%, transparent 100%);
         }
 
         .cases-scroll {
@@ -1356,9 +1464,17 @@
 
         .faq-item {
             border-bottom: 1px solid var(--border);
+            transition: all 0.3s;
         }
 
         .faq-item:first-child { border-top: 1px solid var(--border); }
+
+        .faq-item[open] {
+            background: var(--card);
+            border-left: 3px solid var(--red);
+            padding-left: 16px;
+            margin-left: -16px;
+        }
 
         .faq-question {
             width: 100%;
@@ -1465,6 +1581,30 @@
     </style>
 </head>
 <body>
+
+    <!-- MARQUEE SLIDER -->
+    <div class="marquee-section" id="marqueeSection">
+        <div class="marquee-track" id="marqueeTrack">
+            <span class="marquee-item" data-expand="signal">Intent Signal Detection</span>
+            <span class="marquee-item" data-expand="enrichment">47+ Data Points Per Account</span>
+            <span class="marquee-item" data-expand="pipeline">Pipeline Infrastructure</span>
+            <span class="marquee-item" data-expand="deliver">98%+ Email Deliverability</span>
+            <span class="marquee-item" data-expand="clay">Clay-Powered Enrichment</span>
+            <span class="marquee-item" data-expand="routing">Real-Time Slack Routing</span>
+            <span class="marquee-item" data-expand="signal">Intent Signal Detection</span>
+            <span class="marquee-item" data-expand="enrichment">47+ Data Points Per Account</span>
+            <span class="marquee-item" data-expand="pipeline">Pipeline Infrastructure</span>
+            <span class="marquee-item" data-expand="deliver">98%+ Email Deliverability</span>
+            <span class="marquee-item" data-expand="clay">Clay-Powered Enrichment</span>
+            <span class="marquee-item" data-expand="routing">Real-Time Slack Routing</span>
+        </div>
+    </div>
+
+    <!-- MARQUEE EXPANDED CONTENT -->
+    <div class="marquee-expanded" id="marqueeExpanded">
+        <div class="marquee-expanded-title" id="expandTitle"></div>
+        <div class="marquee-expanded-desc" id="expandDesc"></div>
+    </div>
 
     <!-- NAV -->
     <nav class="nav">
@@ -1817,6 +1957,7 @@
                 <h2 class="section-title">Proven Results</h2>
             </div>
         </div>
+        <div class="cases-scroll-wrapper">
         <div class="cases-scroll">
             <div class="case-card">
                 <div class="case-label">B2B SaaS &mdash; Series A</div>
@@ -2104,6 +2245,22 @@
                     <summary class="faq-question">Timeline to first revenue?</summary>
                     <p class="faq-answer">First signals in Week 3. Full system at 30 days.</p>
                 </details>
+                <details class="faq-item">
+                    <summary class="faq-question">What's outcome-based pricing?</summary>
+                    <p class="faq-answer">We align incentives. We win when you win. No hourly billing, no retainer traps. Pure performance pricing for genuine partnership.</p>
+                </details>
+                <details class="faq-item">
+                    <summary class="faq-question">How do we handle deliverability?</summary>
+                    <p class="faq-answer">Multi-domain setup, SPF/DKIM/DMARC authentication, warm-up protocols, and inbox rotation. 98%+ deliverability is the baseline, not the goal.</p>
+                </details>
+                <details class="faq-item">
+                    <summary class="faq-question">Can we integrate with existing tools?</summary>
+                    <p class="faq-answer">Clay, HubSpot, Apollo, Instantly, Smartlead, n8n, Slack, Attio &mdash; we work with your existing stack. No rip-and-replace required.</p>
+                </details>
+                <details class="faq-item">
+                    <summary class="faq-question">How does self-improving ICP work?</summary>
+                    <p class="faq-answer">Every signal that flows through the system &mdash; intent data, tech stack, firmographics &mdash; gets fed back into the ICP model. It gets smarter with every touchpoint.</p>
+                </details>
             </div>
         </div>
     </section>
@@ -2134,6 +2291,49 @@
         });
 
         reveals.forEach(el => observer.observe(el));
+
+        // MARQUEE SLIDER - click to pause + expand
+        const marqueeTrack = document.getElementById('marqueeTrack');
+        const marqueeExpanded = document.getElementById('marqueeExpanded');
+        const expandTitle = document.getElementById('expandTitle');
+        const expandDesc = document.getElementById('expandDesc');
+
+        const expandData = {
+            'signal': { title: 'Intent Signal Detection', desc: 'Real-time monitoring of buying signals across your target accounts. Tech stack reveals, hiring triggers, funding news, and intent data — surfaced the moment they happen, routed to Slack in under 60 seconds.' },
+            'enrichment': { title: '47+ Data Points Per Account', desc: 'Clay-powered waterfall enrichment that captures firmographics, technographics, intent signals, contact verification, and social data. Every field you need to personalize at scale and score accounts accurately.' },
+            'pipeline': { title: 'Pipeline Infrastructure', desc: 'End-to-end outbound machine built for B2B scale-ups. Multi-domain setup, warm-up protocols, inbox rotation, and deliverability engineering at 98%+. The foundation that makes everything else work.' },
+            'deliver': { title: '98%+ Email Deliverability', desc: 'SPF/DKIM/DMARC authentication, domain warm-up, bounce handling, and inbox rotation across domains. We build the infrastructure that keeps your sender reputation intact while you scale.' },
+            'clay': { title: 'Clay-Powered Enrichment', desc: 'Waterfall enrichment that pulls from 47+ data providers. ICP scoring before CRM sync. Self-improving models that get smarter with every data point. The intelligence layer that drives every decision.' },
+            'routing': { title: 'Real-Time Slack Routing', desc: 'High-intent signals trigger instant Slack alerts to your sales team. AEs know within 60 seconds when a target visits your pricing page, opens an email, or shows buying intent. Speed wins.' }
+        };
+
+        document.querySelectorAll('.marquee-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const key = item.getAttribute('data-expand');
+                const data = expandData[key];
+
+                if (data) {
+                    // Toggle - if already open, close it
+                    if (marqueeExpanded.classList.contains('active') && expandTitle.textContent === data.title) {
+                        marqueeExpanded.classList.remove('active');
+                        marqueeTrack.classList.remove('paused');
+                    } else {
+                        expandTitle.textContent = data.title;
+                        expandDesc.textContent = data.desc;
+                        marqueeExpanded.classList.add('active');
+                        marqueeTrack.classList.add('paused');
+                    }
+                }
+            });
+        });
+
+        // Close expanded when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.marquee-item') && !e.target.closest('.marquee-expanded')) {
+                marqueeExpanded.classList.remove('active');
+                marqueeTrack.classList.remove('paused');
+            }
+        });
     })();
     </script>
 
